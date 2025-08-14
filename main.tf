@@ -5,6 +5,8 @@
 locals {
   module_name = var.name
   labels      = var.labels
+  secret_key  = var.paperless_secret_key
+  pg_pw       = var.paperless_postgres_pw
 
   # Default environment variables from docker-compose.env
   paperless_env = merge({
@@ -13,12 +15,12 @@ locals {
     PAPERLESS_DBHOST                  = "${local.module_name}-postgres"
     PAPERLESS_DBNAME                  = "paperless"
     PAPERLESS_DBUSER                  = "paperless"
-    PAPERLESS_DBPASS                  = var.paperless_postgres_pw
+    PAPERLESS_DBPASS                  = local.pg_pw
     PAPERLESS_DBPORT                  = "5432"
     PAPERLESS_TIKA_ENABLED            = "true"
     PAPERLESS_TIKA_GOTENBERG_ENDPOINT = "http://${local.module_name}-gotenberg:3000"
     PAPERLESS_TIKA_ENDPOINT           = "http://${local.module_name}-tika:9998"
-    PAPERLESS_SECRET_KEY              = var.paperless_secret_key
+    PAPERLESS_SECRET_KEY              = local.secret_key
     PAPERLESS_URL                     = "http://localhost:8000"
     PAPERLESS_TIME_ZONE               = "UTC"
     PAPERLESS_OCR_LANGUAGE            = "eng"
@@ -83,7 +85,7 @@ resource "kubernetes_deployment" "postgres" {
           }
           env {
             name  = "POSTGRES_PASSWORD"
-            value = var.paperless_postgres_pw
+            value = local.pg_pw
           }
 
           port {
