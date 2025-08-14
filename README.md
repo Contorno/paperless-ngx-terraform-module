@@ -1,11 +1,12 @@
 # paperless-ngx-terraform-module
 
 A Terraform module to spin-up Paperless-ngx on Kubernetes.
+
 ## Usage
 
 ```hcl
 module "paperless" {
-  source = "github.com/your-org/paperless-ngx-terraform-module//?ref=v0.1.0"
+  source = "git::http://github.com/your-org/paperless-ngx-terraform-module//?ref=v0.1.0"
 
   name   = "paperless"
   labels = {
