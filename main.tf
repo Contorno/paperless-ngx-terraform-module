@@ -2,20 +2,6 @@
 # Module resources go here
 ########################################
 
-ephemeral "infisical_secret" "paperless_secret_key" {
-  name         = "paperless-secret-key"
-  env_slug     = "prod"
-  workspace_id = "e94f2ac1-a387-4a26-a9b0-d0e3dadaf174"
-  folder_path  = "/k8s/"
-}
-
-ephemeral "infisical_secret" "paperless_postgres_pw" {
-  name         = "paperless-postgres-pw"
-  env_slug     = "prod"
-  workspace_id = "e94f2ac1-a387-4a26-a9b0-d0e3dadaf174"
-  folder_path  = "/k8s/"
-}
-
 locals {
   module_name = var.name
   labels      = var.labels
@@ -27,12 +13,12 @@ locals {
     PAPERLESS_DBHOST                  = "${local.module_name}-postgres"
     PAPERLESS_DBNAME                  = "paperless"
     PAPERLESS_DBUSER                  = "paperless"
-    PAPERLESS_DBPASS                  = ephemeral.infisical_secret.paperless_postgres_pw.value
+    PAPERLESS_DBPASS                  = var.paperless_postgres_pw
     PAPERLESS_DBPORT                  = "5432"
     PAPERLESS_TIKA_ENABLED            = "true"
     PAPERLESS_TIKA_GOTENBERG_ENDPOINT = "http://${local.module_name}-gotenberg:3000"
     PAPERLESS_TIKA_ENDPOINT           = "http://${local.module_name}-tika:9998"
-    PAPERLESS_SECRET_KEY              = ephemeral.infisical_secret.paperless_secret_key.value
+    PAPERLESS_SECRET_KEY              = var.paperless_secret_key
     PAPERLESS_URL                     = "http://localhost:8000"
     PAPERLESS_TIME_ZONE               = "UTC"
     PAPERLESS_OCR_LANGUAGE            = "eng"
