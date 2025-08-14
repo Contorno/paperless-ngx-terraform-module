@@ -67,9 +67,11 @@ variable "storage_class_name" {
 variable "paperless_secret_key" {
     description = "The secret key used by paperless"
     type        = string
+    sensitive = true
 }
 
 variable "paperless_postgres_pw" {
     description = "Password for the paperless Postgres database"
     type        = string
+    sensitive = true
 }
