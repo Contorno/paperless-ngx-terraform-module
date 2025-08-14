@@ -83,7 +83,7 @@ resource "kubernetes_deployment" "postgres" {
           }
           env {
             name  = "POSTGRES_PASSWORD"
-            value = ephemeral.infisical_secret.paperless_postgres_pw.value
+            value = var.paperless_postgres_pw
           }
 
           port {
