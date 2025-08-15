@@ -75,3 +75,27 @@ variable "paperless_postgres_pw" {
     type        = string
     sensitive = true
 }
+
+variable "enable_ingress" {
+  description = "Enable ingress for Paperless-ngx"
+  type        = bool
+  default     = false
+}
+
+variable "ingress_host" {
+  description = "Hostname for the ingress"
+  type        = string
+  default     = "paperless.internal.cluster"
+}
+
+variable "ingress_annotations" {
+  description = "Additional annotations for the ingress"
+  type        = map(string)
+  default     = {}
+}
+
+variable "ingress_class" {
+  description = "Ingress class to use"
+  type        = string
+  default     = "nginx"
+}

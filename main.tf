@@ -569,3 +569,39 @@ resource "kubernetes_persistent_volume_claim" "paperless_consume" {
     }
   }
 }
+
+# Paperless-ngx Ingress
+resource "kubernetes_ingress_v1" "paperless_internal" {
+  count = var.enable_ingress ? 1 : 0
+
+  metadata {
+    name      = "${local.module_name}-paperless-internal"
+    namespace = kubernetes_namespace.this.metadata[0].name
+    labels    = local.labels
+    annotations = merge({
+      "kubernetes.io/ingress.class"                    = "nginx"
+      "nginx.ingress.kubernetes.io/ssl-redirect"       = "false"
+      "nginx.ingress.kubernetes.io/force-ssl-redirect" = "false"
+    }, var.ingress_annotations)
+  }
+
+  spec {
+    rule {
+      host = var.ingress_host
+      http {
+        path {
+          path      = "/"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = kubernetes_service.paperless.metadata[0].name
+              port {
+                number = 8000
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
