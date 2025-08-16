@@ -28,7 +28,11 @@ locals {
     PAPERLESS_TIME_ZONE               = "UTC"
     PAPERLESS_OCR_LANGUAGE            = "eng"
     PAPERLESS_OCR_LANGUAGES           = "por"
-    PAPERLESS_ALLOWED_HOSTS           = var.enable_ingress ? var.ingress_host : "localhost"
+    PAPERLESS_ALLOWED_HOSTS           = var.enable_ingress ? "${var.ingress_host},localhost,127.0.0.1" : "localhost,127.0.0.1"
+    PAPERLESS_CORS_ALLOWED_HOSTS      = var.enable_ingress ? "https://${var.ingress_host}" : "http://localhost:8000"
+    PAPERLESS_USE_X_FORWARD_HOST      = var.enable_ingress ? "true" : "false"
+    PAPERLESS_USE_X_FORWARD_PORT      = var.enable_ingress ? "true" : "false"
+    PAPERLESS_USE_X_FORWARD_PROTO     = var.enable_ingress ? "true" : "false"
   }, var.environment_variables)
 }
 
