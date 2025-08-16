@@ -77,15 +77,15 @@ variable "paperless_postgres_pw" {
 }
 
 variable "enable_ingress" {
-  description = "Enable ingress for Paperless-ngx"
+  description = "Enable external ingress for Paperless-ngx"
   type        = bool
   default     = false
 }
 
 variable "ingress_host" {
-  description = "Hostname for the ingress"
+  description = "External hostname for the ingress"
   type        = string
-  default     = "paperless.internal.cluster"
+  default     = "localhost"
 }
 
 variable "ingress_annotations" {
@@ -98,4 +98,16 @@ variable "ingress_class" {
   description = "Ingress class to use"
   type        = string
   default     = "nginx"
+}
+
+variable "enable_tls" {
+  description = "Enable TLS/HTTPS for the ingress"
+  type        = bool
+  default     = true
+}
+
+variable "cert_manager_issuer" {
+  description = "Cert-manager cluster issuer for Let's Encrypt certificates"
+  type        = string
+  default     = "letsencrypt-prod"
 }
