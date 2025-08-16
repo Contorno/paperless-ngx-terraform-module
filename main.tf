@@ -7,7 +7,7 @@ locals {
   labels      = var.labels
   secret_key  = var.paperless_secret_key
   pg_pw       = var.paperless_postgres_pw
-  
+
   # Calculate the external URL based on ingress settings
   paperless_url = var.enable_ingress ? (var.enable_tls ? "https://${var.ingress_host}" : "http://${var.ingress_host}") : "http://localhost:8000"
 
@@ -481,6 +481,12 @@ resource "kubernetes_deployment" "paperless" {
       }
     }
   }
+  depends_on = [
+    kubernetes_service.postgres,
+    kubernetes_service.redis,
+    kubernetes_service.tika,
+    kubernetes_service.gotenberg
+  ]
 }
 
 # Paperless-ngx Service
@@ -587,14 +593,14 @@ resource "kubernetes_ingress_v1" "paperless_external" {
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
     annotations = merge({
-      "kubernetes.io/ingress.class"                        = var.ingress_class
-      "cert-manager.io/cluster-issuer"                     = var.cert_manager_issuer
-      "nginx.ingress.kubernetes.io/ssl-redirect"           = var.enable_tls ? "true" : "false"
-      "nginx.ingress.kubernetes.io/force-ssl-redirect"     = var.enable_tls ? "true" : "false"
-      "nginx.ingress.kubernetes.io/proxy-body-size"        = "100m"
-      "nginx.ingress.kubernetes.io/proxy-read-timeout"     = "600"
-      "nginx.ingress.kubernetes.io/proxy-send-timeout"     = "600"
-      "nginx.ingress.kubernetes.io/client-max-body-size"   = "100m"
+      "ingressClassName"                                 = var.ingress_class
+      "cert-manager.io/cluster-issuer"                   = var.cert_manager_issuer
+      "nginx.ingress.kubernetes.io/ssl-redirect"         = var.enable_tls ? "true" : "false"
+      "nginx.ingress.kubernetes.io/force-ssl-redirect"   = var.enable_tls ? "true" : "false"
+      "nginx.ingress.kubernetes.io/proxy-body-size"      = "100m"
+      "nginx.ingress.kubernetes.io/proxy-read-timeout"   = "600"
+      "nginx.ingress.kubernetes.io/proxy-send-timeout"   = "600"
+      "nginx.ingress.kubernetes.io/client-max-body-size" = "100m"
     }, var.ingress_annotations)
   }
 
@@ -611,7 +617,7 @@ resource "kubernetes_ingress_v1" "paperless_external" {
       host = var.ingress_host
       http {
         path {
-          path      = "/*"
+          path      = "/"
           path_type = "Prefix"
           backend {
             service {
