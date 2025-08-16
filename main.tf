@@ -7,6 +7,9 @@ locals {
   labels      = var.labels
   secret_key  = var.paperless_secret_key
   pg_pw       = var.paperless_postgres_pw
+  
+  # Calculate the external URL based on ingress settings
+  paperless_url = var.enable_ingress ? (var.enable_tls ? "https://${var.ingress_host}" : "http://${var.ingress_host}") : "http://localhost:8000"
 
   # Default environment variables from docker-compose.env
   paperless_env = merge({
@@ -21,10 +24,11 @@ locals {
     PAPERLESS_TIKA_GOTENBERG_ENDPOINT = "http://${local.module_name}-gotenberg:3000"
     PAPERLESS_TIKA_ENDPOINT           = "http://${local.module_name}-tika:9998"
     PAPERLESS_SECRET_KEY              = local.secret_key
-    PAPERLESS_URL                     = "http://localhost:8000"
+    PAPERLESS_URL                     = local.paperless_url
     PAPERLESS_TIME_ZONE               = "UTC"
     PAPERLESS_OCR_LANGUAGE            = "eng"
     PAPERLESS_OCR_LANGUAGES           = "por"
+    PAPERLESS_ALLOWED_HOSTS           = var.enable_ingress ? var.ingress_host : "localhost"
   }, var.environment_variables)
 }
 
@@ -570,22 +574,35 @@ resource "kubernetes_persistent_volume_claim" "paperless_consume" {
   }
 }
 
-# Paperless-ngx Ingress
-resource "kubernetes_ingress_v1" "paperless_internal" {
+# Paperless-ngx External Ingress with Let's Encrypt
+resource "kubernetes_ingress_v1" "paperless_external" {
   count = var.enable_ingress ? 1 : 0
 
   metadata {
-    name      = "${local.module_name}-paperless-internal"
+    name      = "${local.module_name}-paperless-external"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
     annotations = merge({
-      "kubernetes.io/ingress.class"                    = "nginx"
-      "nginx.ingress.kubernetes.io/ssl-redirect"       = "false"
-      "nginx.ingress.kubernetes.io/force-ssl-redirect" = "false"
+      "kubernetes.io/ingress.class"                        = var.ingress_class
+      "cert-manager.io/cluster-issuer"                     = var.cert_manager_issuer
+      "nginx.ingress.kubernetes.io/ssl-redirect"           = var.enable_tls ? "true" : "false"
+      "nginx.ingress.kubernetes.io/force-ssl-redirect"     = var.enable_tls ? "true" : "false"
+      "nginx.ingress.kubernetes.io/proxy-body-size"        = "100m"
+      "nginx.ingress.kubernetes.io/proxy-read-timeout"     = "600"
+      "nginx.ingress.kubernetes.io/proxy-send-timeout"     = "600"
+      "nginx.ingress.kubernetes.io/client-max-body-size"   = "100m"
     }, var.ingress_annotations)
   }
 
   spec {
+    dynamic "tls" {
+      for_each = var.enable_tls ? [1] : []
+      content {
+        hosts       = [var.ingress_host]
+        secret_name = "${local.module_name}-tls-secret"
+      }
+    }
+
     rule {
       host = var.ingress_host
       http {
