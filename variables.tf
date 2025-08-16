@@ -111,3 +111,41 @@ variable "cert_manager_issuer" {
   type        = string
   default     = "letsencrypt-prod"
 }
+
+# Paperless AI Configuration
+variable "enable_paperless_ai" {
+  description = "Enable Paperless AI service"
+  type        = bool
+  default     = false
+}
+
+variable "paperless_ai_service_type" {
+  description = "Kubernetes service type for Paperless AI"
+  type        = string
+  default     = "ClusterIP"
+}
+
+variable "paperless_ai_storage_size" {
+  description = "Storage size for Paperless AI data"
+  type        = string
+  default     = "5Gi"
+}
+
+# Paperless AI Ingress
+variable "enable_paperless_ai_ingress" {
+  description = "Enable external ingress for Paperless AI"
+  type        = bool
+  default     = true
+}
+
+variable "paperless_ai_ingress_host" {
+  description = "Hostname for Paperless AI ingress"
+  type        = string
+  default     = "paperless-ai.example.com"
+}
+
+variable "paperless_ai_ingress_annotations" {
+  description = "Additional annotations for Paperless AI ingress"
+  type        = map(string)
+  default     = {}
+}
