@@ -611,7 +611,7 @@ resource "kubernetes_ingress_v1" "paperless_external" {
       host = var.ingress_host
       http {
         path {
-          path      = "/"
+          path      = "/*"
           path_type = "Prefix"
           backend {
             service {
