@@ -44,35 +44,7 @@ resource "kubernetes_deployment" "paperless_ai" {
             }
           }
 
-          # Simplified health checks - remove if the container doesn't have a health endpoint
-          startup_probe {
-            tcp_socket {
-              port = 3001
-            }
-            initial_delay_seconds = 10
-            period_seconds        = 10
-            failure_threshold     = 30
-          }
 
-          liveness_probe {
-            tcp_socket {
-              port = 3001
-            }
-            initial_delay_seconds = 30
-            period_seconds        = 30
-            timeout_seconds       = 10
-            failure_threshold     = 3
-          }
-
-          readiness_probe {
-            tcp_socket {
-              port = 3001
-            }
-            initial_delay_seconds = 5
-            period_seconds        = 10
-            timeout_seconds       = 5
-            failure_threshold     = 3
-          }
 
           # Volume mount for persistent data
           volume_mount {
