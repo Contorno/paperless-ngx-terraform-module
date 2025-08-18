@@ -68,7 +68,7 @@ resource "kubernetes_deployment" "paperless_ai" {
 
   # Ensure paperless service is created first
   depends_on = [
-    kubernetes_service.paperless
+    kubernetes_deployment.paperless
   ]
 }
 
