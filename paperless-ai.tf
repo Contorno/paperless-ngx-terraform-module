@@ -24,26 +24,9 @@ resource "kubernetes_deployment" "paperless_ai" {
       }
 
       spec {
-        # Security context - simplified since the Docker command doesn't specify security opts
-        security_context {
-          run_as_user     = 1000
-          run_as_group    = 1000
-          run_as_non_root = true
-        }
-
         container {
           image = "clusterzx/paperless-ai:latest"
           name  = "paperless-ai"
-
-          # Simplified environment variables to match Docker run
-          env {
-            name  = "PUID"
-            value = "1000"
-          }
-          env {
-            name  = "PGID"
-            value = "1000"
-          }
 
           port {
             container_port = 3001
