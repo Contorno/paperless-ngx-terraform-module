@@ -46,7 +46,7 @@ resource "kubernetes_deployment" "paperless_ai" {
           }
 
           port {
-            container_port = 3000
+            container_port = 3001
           }
 
           # Resource limits
@@ -64,7 +64,7 @@ resource "kubernetes_deployment" "paperless_ai" {
           # Simplified health checks - remove if the container doesn't have a health endpoint
           startup_probe {
             tcp_socket {
-              port = 3000
+              port = 3001
             }
             initial_delay_seconds = 10
             period_seconds        = 10
@@ -73,7 +73,7 @@ resource "kubernetes_deployment" "paperless_ai" {
 
           liveness_probe {
             tcp_socket {
-              port = 3000
+              port = 3001
             }
             initial_delay_seconds = 30
             period_seconds        = 30
@@ -83,7 +83,7 @@ resource "kubernetes_deployment" "paperless_ai" {
 
           readiness_probe {
             tcp_socket {
-              port = 3000
+              port = 3001
             }
             initial_delay_seconds = 5
             period_seconds        = 10
@@ -133,8 +133,8 @@ resource "kubernetes_service" "paperless_ai" {
     }
 
     port {
-      port        = 3000
-      target_port = 3000
+      port        = 3001
+      target_port = 3001
       protocol    = "TCP"
     }
 
@@ -199,7 +199,7 @@ resource "kubernetes_ingress_v1" "paperless_ai_external" {
             service {
               name = kubernetes_service.paperless_ai[0].metadata[0].name
               port {
-                number = 3000
+                number = 3001
               }
             }
           }
