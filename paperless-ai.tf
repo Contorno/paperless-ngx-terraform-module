@@ -29,7 +29,7 @@ resource "kubernetes_deployment" "paperless_ai" {
           name  = "paperless-ai"
 
           port {
-            container_port = 3001
+            container_port = 3000
           }
 
           # Resource limits
@@ -89,7 +89,7 @@ resource "kubernetes_service" "paperless_ai" {
 
     port {
       port        = 3001
-      target_port = 3001
+      target_port = 3000
       protocol    = "TCP"
     }
 
