@@ -77,19 +77,19 @@ resource "kubernetes_service" "paperless_ai" {
   count = var.enable_paperless_ai ? 1 : 0
 
   metadata {
-    name      = "${local.module_name}-paperless-ai"
+    name      = "${local.module_name}-ai"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
 
   spec {
     selector = {
-      app = "${local.module_name}-paperless-ai"
+      app = "${local.module_name}-ai"
     }
 
     port {
       port        = 3001
-      target_port = 3000
+      target_port = 3001
       protocol    = "TCP"
     }
 
@@ -102,7 +102,7 @@ resource "kubernetes_persistent_volume_claim" "paperless_ai_data" {
   count = var.enable_paperless_ai ? 1 : 0
 
   metadata {
-    name      = "${local.module_name}-paperless-ai-data"
+    name      = "${local.module_name}-ai-data"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -123,7 +123,7 @@ resource "kubernetes_ingress_v1" "paperless_ai_external" {
   count = var.enable_paperless_ai && var.enable_paperless_ai_ingress ? 1 : 0
 
   metadata {
-    name      = "${local.module_name}-paperless-ai-external"
+    name      = "${local.module_name}-ai"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
     annotations = merge({
@@ -140,7 +140,7 @@ resource "kubernetes_ingress_v1" "paperless_ai_external" {
       for_each = var.enable_tls ? [1] : []
       content {
         hosts       = [var.paperless_ai_ingress_host]
-        secret_name = "${local.module_name}-paperless-ai-tls-secret"
+        secret_name = "${local.module_name}-ai-tls-secret"
       }
     }
 

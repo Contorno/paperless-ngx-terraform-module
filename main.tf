@@ -589,7 +589,7 @@ resource "kubernetes_ingress_v1" "paperless_external" {
   count = var.enable_ingress ? 1 : 0
 
   metadata {
-    name      = "${local.module_name}-paperless-external"
+    name      = "${local.module_name}"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
     annotations = merge({
