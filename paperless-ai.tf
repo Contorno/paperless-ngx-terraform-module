@@ -88,8 +88,8 @@ resource "kubernetes_service" "paperless_ai" {
     }
 
     port {
-      port        = 3000
-      target_port = 3001
+      port        = 3001
+      target_port = 3000
       protocol    = "TCP"
     }
 
