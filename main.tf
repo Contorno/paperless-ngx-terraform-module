@@ -13,16 +13,16 @@ locals {
 
   # Default environment variables from docker-compose.env
   paperless_env = merge({
-    PAPERLESS_REDIS                   = "redis://${local.module_name}-redis:6379"
+    PAPERLESS_REDIS                   = "redis://${local.module_name}-redis-service:6379"
     PAPERLESS_DBENGINE                = "postgresql"
-    PAPERLESS_DBHOST                  = "${local.module_name}-postgres"
+    PAPERLESS_DBHOST                  = "${local.module_name}-postgres-service"
     PAPERLESS_DBNAME                  = "paperless"
     PAPERLESS_DBUSER                  = "paperless"
     PAPERLESS_DBPASS                  = local.pg_pw
     PAPERLESS_DBPORT                  = "5432"
     PAPERLESS_TIKA_ENABLED            = "true"
-    PAPERLESS_TIKA_GOTENBERG_ENDPOINT = "http://${local.module_name}-gotenberg:3000"
-    PAPERLESS_TIKA_ENDPOINT           = "http://${local.module_name}-tika:9998"
+    PAPERLESS_TIKA_GOTENBERG_ENDPOINT = "http://${local.module_name}-gotenberg-service:3000"
+    PAPERLESS_TIKA_ENDPOINT           = "http://${local.module_name}-tika-service:9998"
     PAPERLESS_SECRET_KEY              = local.secret_key
     PAPERLESS_URL                     = local.paperless_url
     PAPERLESS_TIME_ZONE               = "UTC"
