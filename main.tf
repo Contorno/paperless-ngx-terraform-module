@@ -115,7 +115,7 @@ resource "kubernetes_deployment" "postgres" {
 # PostgreSQL Service
 resource "kubernetes_service" "postgres" {
   metadata {
-    name      = "${local.module_name}-postgres"
+    name      = "${local.module_name}-postgres-service"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -214,7 +214,7 @@ resource "kubernetes_deployment" "redis" {
 # Redis Service
 resource "kubernetes_service" "redis" {
   metadata {
-    name      = "${local.module_name}-redis"
+    name      = "${local.module_name}-redis-service"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -301,7 +301,7 @@ resource "kubernetes_deployment" "tika" {
 # Tika Service
 resource "kubernetes_service" "tika" {
   metadata {
-    name      = "${local.module_name}-tika"
+    name      = "${local.module_name}-tika-service"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -374,7 +374,7 @@ resource "kubernetes_deployment" "gotenberg" {
 # Gotenberg Service
 resource "kubernetes_service" "gotenberg" {
   metadata {
-    name      = "${local.module_name}-gotenberg"
+    name      = "${local.module_name}-gotenberg-service"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -394,7 +394,7 @@ resource "kubernetes_service" "gotenberg" {
 # Paperless-ngx Deployment
 resource "kubernetes_deployment" "paperless" {
   metadata {
-    name      = "${local.module_name}-paperless"
+    name      = "${local.module_name}"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -403,14 +403,14 @@ resource "kubernetes_deployment" "paperless" {
     replicas = 1
     selector {
       match_labels = {
-        app = "${local.module_name}-paperless"
+        app = "${local.module_name}"
       }
     }
 
     template {
       metadata {
         labels = merge(local.labels, {
-          app = "${local.module_name}-paperless"
+          app = "${local.module_name}"
         })
       }
 
@@ -487,13 +487,11 @@ resource "kubernetes_deployment" "paperless" {
 # Paperless-ngx Service
 resource "kubernetes_service" "paperless" {
   metadata {
-    name      = "${local.module_name}"
+    name      = "${local.module_name}-service"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
     annotations = merge(
-      {
-        "app.kubernetes.io/name" = "${local.module_name}"
-      },
+      {},
       try(var.paperless_service_annotations, {})
     )
   }
