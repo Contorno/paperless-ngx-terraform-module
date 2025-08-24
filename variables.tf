@@ -118,3 +118,9 @@ variable "paperless_service_annotations" {
   type        = map(string)
   default     = {}
 }
+
+variable "paperless_url" {
+  description = "The URL where Paperless-ngx will be accessible"
+  type        = string
+  default     = "https://127.0.0.1:8000"
+}

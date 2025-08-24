@@ -9,7 +9,7 @@ locals {
   pg_pw       = var.paperless_postgres_pw
 
   # Calculate the external URL based on ingress settings
-  paperless_url = "http://localhost:8000"
+  paperless_url = var.paperless_url
 
   # Default environment variables from docker-compose.env
   paperless_env = merge({
