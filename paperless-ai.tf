@@ -83,7 +83,17 @@ resource "kubernetes_deployment" "paperless_ai" {
           # Volume mounts
           volume_mount {
             name       = "paperless-ai-data"
-            mount_path = "/app"
+            mount_path = "/app/data"
+          }
+          
+          volume_mount {
+            name       = "paperless-ai-logs"
+            mount_path = "/app/logs"
+          }
+
+          volume_mount {
+            name       = "paperless-ai-openapi"
+            mount_path = "/app/OPENAPI"
           }
         }
 
@@ -91,6 +101,21 @@ resource "kubernetes_deployment" "paperless_ai" {
           name = "paperless-ai-data"
           persistent_volume_claim {
             claim_name = kubernetes_persistent_volume_claim.paperless_ai_data.metadata[0].name
+          }
+        }
+
+        volume {
+          name = "paperless-ai-logs"
+          empty_dir {
+            medium = "Memory"  # Use memory for logs, can be changed to disk if needed
+          }
+        }
+
+      
+        volume {
+          name = "paperless-ai-openapi"
+          empty_dir {
+            medium = "Memory"  # Use memory for logs, can be changed to disk if needed
           }
         }
 
