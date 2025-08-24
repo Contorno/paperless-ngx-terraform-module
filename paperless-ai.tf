@@ -26,6 +26,7 @@ resource "kubernetes_deployment" "paperless_ai" {
           run_as_user     = 1000
           run_as_group    = 1000
           run_as_non_root = true
+          fs_group        = 1000
         }
         container {
           image = "clusterzx/paperless-ai:latest"
@@ -84,12 +85,23 @@ resource "kubernetes_deployment" "paperless_ai" {
             name       = "paperless-ai-data"
             mount_path = "/app/data"
           }
+          volume_mount {
+            name       = "paperless-ai-logs"
+            mount_path = "/app/logs"
+          }
         }
 
         volume {
           name = "paperless-ai-data"
           persistent_volume_claim {
             claim_name = kubernetes_persistent_volume_claim.paperless_ai_data.metadata[0].name
+          }
+        }
+
+        volume {
+          name = "paperless-ai-logs"
+          empty_dir {
+            size_limit = "1Gi"
           }
         }
 
