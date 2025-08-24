@@ -3,7 +3,7 @@ resource "kubernetes_deployment" "paperless_ai" {
   count = var.enable_paperless_ai ? 1 : 0
 
   metadata {
-    name      = "${local.module_name}-paperless-ai"
+    name      = "${local.module_name}-ai"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -12,31 +12,68 @@ resource "kubernetes_deployment" "paperless_ai" {
     replicas = 1
     selector {
       match_labels = {
-        app = "${local.module_name}-paperless-ai"
+        app = "${local.module_name}-ai"
       }
     }
 
     template {
       metadata {
         labels = merge(local.labels, {
-          app = "${local.module_name}-paperless-ai"
+          app = "${local.module_name}-ai"
         })
       }
 
       spec {
+        security_context {
+          run_as_user     = 1000
+          run_as_group    = 1000
+          run_as_non_root = true
+        }
         container {
           image = "clusterzx/paperless-ai:latest"
           name  = "paperless-ai"
 
+          security_context {
+            run_as_user                = 1000
+            run_as_group               = 1000
+            run_as_non_root            = true
+            allow_privilege_escalation = false
+            capabilities {
+              drop = ["ALL"]
+            }
+          }
+
           port {
-            container_port = 3000
+            container_port = 3001
+          }
+
+          # Environment variables from Docker Compose
+          env {
+            name  = "PUID"
+            value = "1000"
+          }
+          env {
+            name  = "PGID"
+            value = "1000"
+          }
+          env {
+            name  = "PAPERLESS_AI_PORT"
+            value = "3001"
+          }
+          env {
+            name  = "RAG_SERVICE_URL"
+            value = var.paperless_url
+          }
+          env {
+            name  = "RAG_SERVICE_ENABLED"
+            value = "true"
           }
 
           # Resource limits
           resources {
             requests = {
               cpu    = "100m"
-              memory = "256Mi"
+              memory = "128Mi"
             }
             limits = {
               cpu    = "500m"
@@ -44,9 +81,7 @@ resource "kubernetes_deployment" "paperless_ai" {
             }
           }
 
-
-
-          # Volume mount for persistent data
+          # Volume mounts
           volume_mount {
             name       = "paperless-ai-data"
             mount_path = "/app/data"
@@ -77,13 +112,11 @@ resource "kubernetes_service" "paperless_ai" {
   count = var.enable_paperless_ai ? 1 : 0
 
   metadata {
-    name      = "${local.module_name}-ai"
+    name      = "${local.module_name}-ai-service"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
     annotations = merge(
-      {
-        "app.kubernetes.io/name" = "${local.module_name}-ai"
-      },
+      {},
       try(var.paperless_ai_service_annotations, {})
     )
   }
@@ -94,7 +127,7 @@ resource "kubernetes_service" "paperless_ai" {
 
     port {
       port        = 3001
-      target_port = 3000
+      target_port = 3001
       protocol    = "TCP"
     }
 
@@ -119,6 +152,30 @@ resource "kubernetes_persistent_volume_claim" "paperless_ai_data" {
       requests = {
         storage = var.paperless_ai_storage_size
       }
+    }
+  }
+}
+
+resource "kubernetes_ingress_v1" "paperless_ai_tailscale" {
+  metadata {
+    name      = "${local.module_name}-ai-tailscale"
+    namespace = kubernetes_namespace.this.metadata[0].name
+  }
+
+  spec {
+    ingress_class_name = "tailscale"
+
+    default_backend {
+      service {
+        name = kubernetes_service.paperless_ai[0].metadata[0].name
+        port {
+          number = 3001
+        }
+      }
+    }
+
+    tls {
+      hosts = ["paperless-ai"]
     }
   }
 }
