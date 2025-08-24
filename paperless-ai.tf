@@ -1,7 +1,5 @@
 # Paperless AI Deployment
 resource "kubernetes_deployment" "paperless_ai" {
-  count = var.enable_paperless_ai ? 1 : 0
-
   metadata {
     name      = "${local.module_name}-ai"
     namespace = kubernetes_namespace.this.metadata[0].name
@@ -109,7 +107,6 @@ resource "kubernetes_deployment" "paperless_ai" {
 
 # Paperless AI Service
 resource "kubernetes_service" "paperless_ai" {
-  count = var.enable_paperless_ai ? 1 : 0
 
   metadata {
     name      = "${local.module_name}-ai-service"
@@ -137,7 +134,6 @@ resource "kubernetes_service" "paperless_ai" {
 
 # Paperless AI PVC for data persistence
 resource "kubernetes_persistent_volume_claim" "paperless_ai_data" {
-  count = var.enable_paperless_ai ? 1 : 0
 
   metadata {
     name      = "${local.module_name}-ai-data"

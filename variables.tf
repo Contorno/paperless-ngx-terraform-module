@@ -88,13 +88,6 @@ variable "cert_manager_issuer" {
   default     = "letsencrypt-prod"
 }
 
-# Paperless AI Configuration
-variable "enable_paperless_ai" {
-  description = "Enable Paperless AI service"
-  type        = bool
-  default     = false
-}
-
 variable "paperless_ai_service_type" {
   description = "Kubernetes service type for Paperless AI"
   type        = string
