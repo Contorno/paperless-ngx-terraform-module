@@ -76,30 +76,6 @@ variable "paperless_postgres_pw" {
     sensitive = true
 }
 
-variable "enable_ingress" {
-  description = "Enable external ingress for Paperless-ngx"
-  type        = bool
-  default     = false
-}
-
-variable "ingress_host" {
-  description = "External hostname for the ingress"
-  type        = string
-  default     = "localhost"
-}
-
-variable "ingress_annotations" {
-  description = "Additional annotations for the ingress"
-  type        = map(string)
-  default     = {}
-}
-
-variable "ingress_class" {
-  description = "Ingress class to use"
-  type        = string
-  default     = "nginx"
-}
-
 variable "enable_tls" {
   description = "Enable TLS/HTTPS for the ingress"
   type        = bool
@@ -129,19 +105,6 @@ variable "paperless_ai_storage_size" {
   description = "Storage size for Paperless AI data"
   type        = string
   default     = "5Gi"
-}
-
-# Paperless AI Ingress
-variable "enable_paperless_ai_ingress" {
-  description = "Enable external ingress for Paperless AI"
-  type        = bool
-  default     = true
-}
-
-variable "paperless_ai_ingress_host" {
-  description = "Hostname for Paperless AI ingress"
-  type        = string
-  default     = "paperless-ai.example.com"
 }
 
 variable "paperless_ai_service_annotations" {
