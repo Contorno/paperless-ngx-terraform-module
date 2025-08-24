@@ -585,3 +585,26 @@ resource "kubernetes_persistent_volume_claim" "paperless_consume" {
   }
 }
 
+resource "kubernetes_ingress_v1" "paperless_tailscale" {
+  metadata {
+    name      = "${local.module_name}-tailscale"
+    namespace = kubernetes_namespace.this.metadata[0].name
+  }
+
+  spec {
+    ingress_class_name = "tailscale"
+
+    default_backend {
+      service {
+        name = kubernetes_service.paperless.metadata[0].name
+        port {
+          number = 8000
+        }
+      }
+    }
+
+    tls {
+      hosts = ["paperless"]
+    }
+  }
+}
