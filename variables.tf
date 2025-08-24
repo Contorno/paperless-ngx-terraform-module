@@ -144,8 +144,14 @@ variable "paperless_ai_ingress_host" {
   default     = "paperless-ai.example.com"
 }
 
-variable "paperless_ai_ingress_annotations" {
-  description = "Additional annotations for Paperless AI ingress"
+variable "paperless_ai_service_annotations" {
+  description = "Additional annotations for Paperless AI service"
+  type        = map(string)
+  default     = {}
+}
+
+variable "paperless_service_annotations" {
+  description = "Additional annotations for Paperless-ngx service"
   type        = map(string)
   default     = {}
 }

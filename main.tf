@@ -492,14 +492,20 @@ resource "kubernetes_deployment" "paperless" {
 # Paperless-ngx Service
 resource "kubernetes_service" "paperless" {
   metadata {
-    name      = "${local.module_name}-paperless"
+    name      = "${local.module_name}"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
+    annotations = merge(
+      {
+        "app.kubernetes.io/name" = "${local.module_name}"
+      },
+      try(var.paperless_service_annotations, {})
+    )
   }
 
   spec {
     selector = {
-      app = "${local.module_name}-paperless"
+      app = "${local.module_name}"
     }
 
     port {
@@ -514,7 +520,7 @@ resource "kubernetes_service" "paperless" {
 # Paperless-ngx PVCs
 resource "kubernetes_persistent_volume_claim" "paperless_data" {
   metadata {
-    name      = "${local.module_name}-paperless-data"
+    name      = "${local.module_name}-data"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -532,7 +538,7 @@ resource "kubernetes_persistent_volume_claim" "paperless_data" {
 
 resource "kubernetes_persistent_volume_claim" "paperless_media" {
   metadata {
-    name      = "${local.module_name}-paperless-media"
+    name      = "${local.module_name}-media"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -550,7 +556,7 @@ resource "kubernetes_persistent_volume_claim" "paperless_media" {
 
 resource "kubernetes_persistent_volume_claim" "paperless_export" {
   metadata {
-    name      = "${local.module_name}-paperless-export"
+    name      = "${local.module_name}-export"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -568,7 +574,7 @@ resource "kubernetes_persistent_volume_claim" "paperless_export" {
 
 resource "kubernetes_persistent_volume_claim" "paperless_consume" {
   metadata {
-    name      = "${local.module_name}-paperless-consume"
+    name      = "${local.module_name}-consume"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
   }
@@ -584,51 +590,3 @@ resource "kubernetes_persistent_volume_claim" "paperless_consume" {
   }
 }
 
-# Paperless-ngx External Ingress with Let's Encrypt
-resource "kubernetes_ingress_v1" "paperless_external" {
-  count = var.enable_ingress ? 1 : 0
-
-  metadata {
-    name      = "${local.module_name}"
-    namespace = kubernetes_namespace.this.metadata[0].name
-    labels    = local.labels
-    annotations = merge({
-      "ingressClassName"                                 = var.ingress_class
-      "cert-manager.io/cluster-issuer"                   = var.cert_manager_issuer
-      "nginx.ingress.kubernetes.io/ssl-redirect"         = var.enable_tls ? "true" : "false"
-      "nginx.ingress.kubernetes.io/force-ssl-redirect"   = var.enable_tls ? "true" : "false"
-      "nginx.ingress.kubernetes.io/proxy-body-size"      = "100m"
-      "nginx.ingress.kubernetes.io/proxy-read-timeout"   = "600"
-      "nginx.ingress.kubernetes.io/proxy-send-timeout"   = "600"
-      "nginx.ingress.kubernetes.io/client-max-body-size" = "100m"
-    }, var.ingress_annotations)
-  }
-
-  spec {
-    dynamic "tls" {
-      for_each = var.enable_tls ? [1] : []
-      content {
-        hosts       = [var.ingress_host]
-        secret_name = "${local.module_name}-tls-secret"
-      }
-    }
-
-    rule {
-      host = var.ingress_host
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = kubernetes_service.paperless.metadata[0].name
-              port {
-                number = 8000
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}

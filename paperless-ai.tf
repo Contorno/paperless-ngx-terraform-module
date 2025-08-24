@@ -80,8 +80,13 @@ resource "kubernetes_service" "paperless_ai" {
     name      = "${local.module_name}-ai"
     namespace = kubernetes_namespace.this.metadata[0].name
     labels    = local.labels
+    annotations = merge(
+      {
+        "app.kubernetes.io/name" = "${local.module_name}-ai"
+      },
+      try(var.paperless_ai_service_annotations, {})
+    )
   }
-
   spec {
     selector = {
       app = "${local.module_name}-ai"
@@ -89,7 +94,7 @@ resource "kubernetes_service" "paperless_ai" {
 
     port {
       port        = 3001
-      target_port = 3001
+      target_port = 3000
       protocol    = "TCP"
     }
 
@@ -113,52 +118,6 @@ resource "kubernetes_persistent_volume_claim" "paperless_ai_data" {
     resources {
       requests = {
         storage = var.paperless_ai_storage_size
-      }
-    }
-  }
-}
-
-# Optional: Paperless AI Ingress
-resource "kubernetes_ingress_v1" "paperless_ai_external" {
-  count = var.enable_paperless_ai && var.enable_paperless_ai_ingress ? 1 : 0
-
-  metadata {
-    name      = "${local.module_name}-ai"
-    namespace = kubernetes_namespace.this.metadata[0].name
-    labels    = local.labels
-    annotations = merge({
-      "ingressClassName"                               = var.ingress_class
-      "cert-manager.io/cluster-issuer"                 = var.cert_manager_issuer
-      "nginx.ingress.kubernetes.io/ssl-redirect"       = var.enable_tls ? "true" : "false"
-      "nginx.ingress.kubernetes.io/force-ssl-redirect" = var.enable_tls ? "true" : "false"
-      "nginx.ingress.kubernetes.io/proxy-body-size"    = "100m"
-    }, var.paperless_ai_ingress_annotations)
-  }
-
-  spec {
-    dynamic "tls" {
-      for_each = var.enable_tls ? [1] : []
-      content {
-        hosts       = [var.paperless_ai_ingress_host]
-        secret_name = "${local.module_name}-ai-tls-secret"
-      }
-    }
-
-    rule {
-      host = var.paperless_ai_ingress_host
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-          backend {
-            service {
-              name = kubernetes_service.paperless_ai[0].metadata[0].name
-              port {
-                number = 3001
-              }
-            }
-          }
-        }
       }
     }
   }
