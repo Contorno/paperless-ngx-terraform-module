@@ -89,7 +89,7 @@ resource "kubernetes_deployment" "paperless_ai" {
         volume {
           name = "paperless-ai-data"
           persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.paperless_ai_data[0].metadata[0].name
+            claim_name = kubernetes_persistent_volume_claim.paperless_ai_data.metadata[0].name
           }
         }
 
