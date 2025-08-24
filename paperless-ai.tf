@@ -167,7 +167,7 @@ resource "kubernetes_ingress_v1" "paperless_ai_tailscale" {
 
     default_backend {
       service {
-        name = kubernetes_service.paperless_ai[0].metadata[0].name
+        name = kubernetes_service.paperless_ai.metadata[0].name
         port {
           number = 3001
         }
