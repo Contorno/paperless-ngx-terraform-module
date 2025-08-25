@@ -22,18 +22,13 @@ resource "kubernetes_deployment" "paperless_ai" {
       }
 
       spec {
-        security_context {
-          fs_group        = 1000
-        }
+
         container {
           image = "clusterzx/paperless-ai:latest"
           name  = "paperless-ai"
 
           security_context {
-            run_as_user                = 1000
-            run_as_group               = 1000
-            run_as_non_root            = true
-            allow_privilege_escalation = false
+            run_as_non_root            = false
           }
 
           port {
