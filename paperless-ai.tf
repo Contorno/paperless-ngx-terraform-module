@@ -23,9 +23,6 @@ resource "kubernetes_deployment" "paperless_ai" {
 
       spec {
         security_context {
-          run_as_user     = 1000
-          run_as_group    = 1000
-          run_as_non_root = true
           fs_group        = 1000
         }
         container {
@@ -82,11 +79,6 @@ resource "kubernetes_deployment" "paperless_ai" {
           
           # Volume mounts
           volume_mount {
-            name       = "paperless-ai-app"
-            mount_path = "/app"
-          }
-
-          volume_mount {
             name       = "paperless-ai-data"
             mount_path = "/app/data"
           }
@@ -96,13 +88,6 @@ resource "kubernetes_deployment" "paperless_ai" {
           name = "paperless-ai-data"
           persistent_volume_claim {
             claim_name = kubernetes_persistent_volume_claim.paperless_ai_data.metadata[0].name
-          }
-        }
-
-        volume {
-          name = "paperless-ai-app"
-          empty_dir {
-            medium = "Memory"  # Use memory for logs, can be changed to disk if needed
           }
         }
 
