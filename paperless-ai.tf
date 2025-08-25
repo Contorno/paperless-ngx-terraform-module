@@ -22,13 +22,24 @@ resource "kubernetes_deployment" "paperless_ai" {
       }
 
       spec {
-
+        security_context {
+          run_as_user     = 1000
+          run_as_group    = 1000
+          run_as_non_root = true
+          fs_group        = 1000
+        }
         container {
           image = "clusterzx/paperless-ai:latest"
           name  = "paperless-ai"
 
           security_context {
-            run_as_non_root            = false
+            run_as_user                = 1000
+            run_as_group               = 1000
+            run_as_non_root            = true
+            allow_privilege_escalation = false
+            capabilities {
+              drop = ["ALL"]
+            }
           }
 
           port {
@@ -68,11 +79,26 @@ resource "kubernetes_deployment" "paperless_ai" {
               memory = "2Gi"
             }
           }
-          
+
           # Volume mounts
           volume_mount {
             name       = "paperless-ai-data"
             mount_path = "/app/data"
+          }
+
+          volume_mount {
+            name       = "paperless-ai-logs"
+            mount_path = "/app/logs"
+          }
+
+          volume_mount {
+            name       = "paperless-ai-openapi"
+            mount_path = "/app/OPENAPI"
+          }
+
+          volume_mount {
+            name       = "paperless-ai-tmp"
+            mount_path = "/tmp"
           }
         }
 
@@ -80,6 +106,28 @@ resource "kubernetes_deployment" "paperless_ai" {
           name = "paperless-ai-data"
           persistent_volume_claim {
             claim_name = kubernetes_persistent_volume_claim.paperless_ai_data.metadata[0].name
+          }
+        }
+
+        volume {
+          name = "paperless-ai-logs"
+          empty_dir {
+            medium = "Memory" # Use memory for logs, can be changed to disk if needed
+          }
+        }
+
+
+        volume {
+          name = "paperless-ai-"
+          empty_dir {
+            medium = "Memory" # Use memory for logs, can be changed to disk if needed
+          }
+        }
+
+        volume {
+          name = "paperless-ai-tmp"
+          empty_dir {
+            size_limit = "1Gi"
           }
         }
 
