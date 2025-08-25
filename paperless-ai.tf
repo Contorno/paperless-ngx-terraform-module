@@ -28,6 +28,7 @@ resource "kubernetes_deployment" "paperless_ai" {
           run_as_non_root = true
           fs_group        = 1000
         }
+
         container {
           image = "clusterzx/paperless-ai:latest"
           name  = "paperless-ai"
@@ -85,45 +86,49 @@ resource "kubernetes_deployment" "paperless_ai" {
             name       = "paperless-ai-data"
             mount_path = "/app/data"
           }
-
           volume_mount {
             name       = "paperless-ai-logs"
             mount_path = "/app/logs"
           }
-
           volume_mount {
             name       = "paperless-ai-openapi"
             mount_path = "/app/OPENAPI"
           }
-
+          volume_mount {
+            name       = "paperless-ai-public"
+            mount_path = "/app/public"
+          }
           volume_mount {
             name       = "paperless-ai-tmp"
             mount_path = "/tmp"
           }
         }
 
+        # Volumes
         volume {
           name = "paperless-ai-data"
           persistent_volume_claim {
             claim_name = kubernetes_persistent_volume_claim.paperless_ai_data.metadata[0].name
           }
         }
-
         volume {
           name = "paperless-ai-logs"
           empty_dir {
-            medium = "Memory" # Use memory for logs, can be changed to disk if needed
+            medium = "Memory"
           }
         }
-
-
         volume {
           name = "paperless-ai-openapi"
           empty_dir {
-            medium = "Memory" # Use memory for logs, can be changed to disk if needed
+            medium = "Memory"
           }
         }
-
+        volume {
+          name = "paperless-ai-public"
+          empty_dir {
+            size_limit = "1Gi"  # For thumbnail images
+          }
+        }
         volume {
           name = "paperless-ai-tmp"
           empty_dir {
@@ -131,13 +136,11 @@ resource "kubernetes_deployment" "paperless_ai" {
           }
         }
 
-        # Restart policy (equivalent to restart: unless-stopped)
         restart_policy = "Always"
       }
     }
   }
 
-  # Ensure paperless service is created first
   depends_on = [
     kubernetes_deployment.paperless
   ]
