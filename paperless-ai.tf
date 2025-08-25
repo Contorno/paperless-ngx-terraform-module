@@ -76,24 +76,19 @@ resource "kubernetes_deployment" "paperless_ai" {
             }
             limits = {
               cpu    = "500m"
-              memory = "1Gi"
+              memory = "2Gi"
             }
           }
-
+          
           # Volume mounts
+          volume_mount {
+            name       = "paperless-ai-app"
+            mount_path = "/app"
+          }
+
           volume_mount {
             name       = "paperless-ai-data"
             mount_path = "/app/data"
-          }
-          
-          volume_mount {
-            name       = "paperless-ai-logs"
-            mount_path = "/app/logs"
-          }
-
-          volume_mount {
-            name       = "paperless-ai-openapi"
-            mount_path = "/app/OPENAPI"
           }
         }
 
@@ -105,15 +100,7 @@ resource "kubernetes_deployment" "paperless_ai" {
         }
 
         volume {
-          name = "paperless-ai-logs"
-          empty_dir {
-            medium = "Memory"  # Use memory for logs, can be changed to disk if needed
-          }
-        }
-
-      
-        volume {
-          name = "paperless-ai-openapi"
+          name = "paperless-ai-app"
           empty_dir {
             medium = "Memory"  # Use memory for logs, can be changed to disk if needed
           }
