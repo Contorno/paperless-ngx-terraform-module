@@ -118,7 +118,7 @@ resource "kubernetes_deployment" "paperless_ai" {
 
 
         volume {
-          name = "paperless-ai-OPENAPI"
+          name = "paperless-ai-openapi"
           empty_dir {
             medium = "Memory" # Use memory for logs, can be changed to disk if needed
           }
