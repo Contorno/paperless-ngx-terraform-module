@@ -34,9 +34,6 @@ resource "kubernetes_deployment" "paperless_ai" {
             run_as_group               = 1000
             run_as_non_root            = true
             allow_privilege_escalation = false
-            capabilities {
-              drop = ["ALL"]
-            }
           }
 
           port {
