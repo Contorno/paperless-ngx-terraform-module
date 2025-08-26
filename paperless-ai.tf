@@ -96,7 +96,7 @@ resource "kubernetes_deployment" "paperless_ai" {
           }
           volume_mount {
             name       = "paperless-ai-public"
-            mount_path = "/app/public/thumbnails"
+            mount_path = "/app/public/images"
           }
           volume_mount {
             name       = "paperless-ai-tmp"
